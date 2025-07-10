@@ -11,7 +11,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build('node-app')
+                    sh 'docker build -t node-app .'
                 }
             }
         }
@@ -19,10 +19,14 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
+                    // Stop and remove any running container named node-app
                     sh 'docker rm -f node-app || true'
+
+                    // Run new container
                     sh 'docker run -d -p 3000:3000 --name node-app node-app'
                 }
             }
         }
     }
 }
+
