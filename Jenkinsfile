@@ -17,13 +17,21 @@ pipeline {
         }
 
         stage('Run Docker Container') {
-            steps {
-                script {
-                    // Stop and remove any running container named node-app
-                    sh 'docker rm -f node-app || true'
+    steps {
+        script {
+            // Stop and remove the container if it exists
+            sh 'docker rm -f node-app || true'
 
-                    // Run new container
-                    sh 'docker run -d -p 3000:3000 --name node-app node-app'
+            // Free up port 3000 (only for Docker use)
+            sh '''
+                used=$(docker ps --filter "publish=3000" -q)
+                if [ -n "$used" ]; then
+                  docker rm -f $used
+                fi
+            '''
+
+            // Run the new container
+            sh 'docker run -d -p 3000:3000 --name node-app node-app'
                 }
             }
         }
